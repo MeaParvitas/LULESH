@@ -2742,7 +2742,7 @@ void LagrangeLeapFrog(Domain& domain)
 
 int main(int argc, char *argv[])
 {
-  Domain *locDom ;
+   Domain *locDom ;
    Int_t numRanks ;
    Int_t myRank ;
    struct cmdLineOpts opts;

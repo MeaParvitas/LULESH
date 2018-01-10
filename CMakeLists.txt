@@ -47,6 +47,9 @@ if (WITH_SILO)
   endif()
 endif()
 
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 11)
+
 set(LULESH_SOURCES
   lulesh-comm.cc
   lulesh-init.cc
