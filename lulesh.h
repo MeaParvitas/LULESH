@@ -2,7 +2,7 @@
 # error "You should specify USE_MPI=0 or USE_MPI=1 on the compile line"
 #endif
 
-#include <caliper/DataTracker.h>
+#include <caliper/cali_datatracker.h>
 
 // OpenMP will be compiled in if this flag is set to 1 AND the compiler beging
 // used supports it (i.e. the _OPENMP symbol is defined)
@@ -139,7 +139,7 @@ class Domain {
    //
 
 #define TRACK_ALLOC(name) \
-   cali::DataTracker::TrackAllocation(m_##name.data(), #name, m_##name.capacity()*sizeof(m_##name.front()))
+   cali_datatracker_track(m_##name.data(), #name, m_##name.capacity()*sizeof(m_##name.front()))
 
    void AllocateNodePersistent(Int_t numNode) // Node-centered
    {
@@ -267,17 +267,17 @@ class Domain {
 
    void DeallocateGradients()
    {
-      cali::DataTracker::UntrackAllocation(m_delx_zeta.data());
-      cali::DataTracker::UntrackAllocation(m_delx_eta.data());
-      cali::DataTracker::UntrackAllocation(m_delx_xi.data());
+      cali_datatracker_untrack(m_delx_zeta.data());
+      cali_datatracker_untrack(m_delx_eta.data());
+      cali_datatracker_untrack(m_delx_xi.data());
 
       m_delx_zeta.clear() ;
       m_delx_eta.clear() ;
       m_delx_xi.clear() ;
 
-      cali::DataTracker::UntrackAllocation(m_delv_zeta.data());
-      cali::DataTracker::UntrackAllocation(m_delv_eta.data());
-      cali::DataTracker::UntrackAllocation(m_delv_xi.data());
+      cali_datatracker_untrack(m_delv_zeta.data());
+      cali_datatracker_untrack(m_delv_eta.data());
+      cali_datatracker_untrack(m_delv_xi.data());
      
       m_delv_zeta.clear() ;
       m_delv_eta.clear() ;
@@ -297,9 +297,9 @@ class Domain {
 
    void DeallocateStrains()
    {
-      cali::DataTracker::UntrackAllocation(m_dzz.data());
-      cali::DataTracker::UntrackAllocation(m_dyy.data());
-      cali::DataTracker::UntrackAllocation(m_dxx.data());
+      cali_datatracker_untrack(m_dzz.data());
+      cali_datatracker_untrack(m_dyy.data());
+      cali_datatracker_untrack(m_dxx.data());
 
       m_dzz.clear() ;
       m_dyy.clear() ;
