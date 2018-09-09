@@ -2,19 +2,15 @@ cmake_minimum_required(VERSION 3.0)
 
 project(LULESH CXX)
 
-option(WITH_MPI    "Build LULESH with MPI"          TRUE)
-option(WITH_OPENMP "Build LULESH with OpenMP"       TRUE)
-option(WITH_SILO   "Build LULESH with silo support" FALSE)
-
-find_package(caliper)
-include_directories(${caliper_INCLUDE_DIR})
-list(APPEND LULESH_EXTERNAL_LIBS caliper)
+option(WITH_MPI     "Build LULESH with MPI"             TRUE)
+option(WITH_OPENMP  "Build LULESH with OpenMP"          TRUE)
+option(WITH_SILO    "Build LULESH with silo support"    FALSE)
+option(WITH_CALIPER "Build LULESH with Caliper support" FALSE)
 
 if (WITH_MPI)
   find_package(MPI REQUIRED)
   include_directories(${MPI_C_INCLUDE_PATH} ${MPI_CXX_INCLUDE_PATH})
   add_definitions("-DUSE_MPI=1")
-  list(APPEND LULESH_EXTERNAL_LIBS caliper-mpi)
   list(APPEND LULESH_EXTERNAL_LIBS ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES})
 else()
   add_definitions("-DUSE_MPI=0")
@@ -44,6 +40,16 @@ if (WITH_SILO)
     # there are additional dependencies (hdf5) which we don't know.
     # This would be fixed by silo providing a CMake package.
     list(APPEND LULESH_EXTERNAL_LIBS ${SILO_LIBRARY})
+  endif()
+endif()
+
+if (WITH_CALIPER)
+  find_package(caliper)
+  include_directories(${caliper_INCLUDE_DIR})
+  add_definitions("-DUSE_CALIPER")
+  list(APPEND LULESH_EXTERNAL_LIBS caliper)
+  if (WITH_MPI)
+    list(APPEND LULESH_EXTERNAL_LIBS caliper-mpi)
   endif()
 endif()
 
