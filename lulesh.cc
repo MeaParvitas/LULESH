@@ -2761,6 +2761,7 @@ int main(int argc, char *argv[])
    struct cmdLineOpts opts;
 
 #ifdef USE_CALIPER
+   cali_config_preset("CALI_LOG_VERBOSITY", "0");
    cali_config_preset("CALI_CALIPER_ATTRIBUTE_PROPERTIES", 
                       "function=nested:process_scope"
                       ",loop=nested:process_scope"
