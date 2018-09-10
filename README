@@ -9,6 +9,34 @@ Rob Neely <neely4@llnl.gov>
 
 Also please send any notable results to Ian Karlin <karlin1@llnl.gov> as we are still evaluating the performance of this code.
 
+*** CMake build system ***
+
+To build LULESH with CMake, follow the usual CMake build workflow:
+
+  $ mkdir build
+  $ cd build
+  $ cmake ..
+  $ make
+
+The CMake build system supports the following flags (default selection in parentheses):
+
+  WITH_MPI        Enable MPI support.            (On)
+  WITH_OPENMP     Enable OpenMP support.         (On)
+  WITH_CALIPER    Enable Caliper support.        (Off)
+  WITH_SILO       On-line visualization support. (Off)
+
+*** Caliper support ***
+
+Optionally, LULESH can use the Caliper performance profiling library for more detailed timing informtion.
+
+To enable Caliper, run cmake with "-DWITH_CALIPER=On -Dcaliper_DIR=<caliper install dir>/share/cmake/caliper".
+
+The caliper.config file provides several example configurations. To use it, place the caliper.config file in the current working directory and select a configuration with the CALI_CONFIG_PROFILE environment variable, e.g.
+
+  $ CALI_CONFIG_PROFILE=mpiP srun -n 64 ./lulesh2.0
+
+See https://llnl.github.io/Caliper for more information.
+
 *** Notable changes in LULESH 2.0 ***
 
 Split functionality into different files
