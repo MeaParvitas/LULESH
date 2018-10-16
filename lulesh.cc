@@ -2749,13 +2749,7 @@ int main(int argc, char *argv[])
    Int_t myRank ;
    struct cmdLineOpts opts;
 
-#ifdef USE_CALIPER
-   cali_config_preset("CALI_LOG_VERBOSITY", "0");
-   cali_config_preset("CALI_CALIPER_ATTRIBUTE_PROPERTIES", 
-                      "function=nested:process_scope"
-                      ",loop=nested:process_scope"
-                      ",iteration#lulesh.cycle=process_scope:asvalue");
-#endif
+   SetupCaliperConfig(); // must be set up before MPI_Init
 
 #if USE_MPI   
    Domain_member fieldData ;
@@ -2779,9 +2773,7 @@ int main(int argc, char *argv[])
 #else
    numRanks = 1;
    myRank = 0;
-#endif   
-
-   LULESH_MARK_FUNCTION;
+#endif
 
    /* Set defaults that can be overridden by command line opts */
    opts.its = 9999999;
@@ -2793,8 +2785,12 @@ int main(int argc, char *argv[])
    opts.viz = 0;
    opts.balance = 1;
    opts.cost = 1;
+   opts.profile = false;
 
    ParseCommandLineOptions(argc, argv, myRank, &opts);
+   SetupCaliperExperiments(&opts);
+   
+   LULESH_MARK_FUNCTION;
 
    if ((myRank == 0) && (opts.quiet == 0)) {
       printf("Running problem size %d^3 per domain until completion\n", opts.nx);

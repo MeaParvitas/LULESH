@@ -5,6 +5,9 @@
 #if USE_MPI
 #include <mpi.h>
 #endif
+#if USE_CALIPER
+#include <caliper/cali.h>
+#endif
 #include "lulesh.h"
 
 /* Helper function for converting strings to ints, with error checking */
@@ -157,6 +160,14 @@ void ParseCommandLineOptions(int argc, char *argv[],
             exit(0);
 #endif
          }
+         else if (strcmp(argv[i], "--profile") == 0) {
+#if USE_CALIPER
+             opts->profile = true;
+#else
+             ParseError("Use of --profile requires compiling with Caliper support\n", myRank);
+#endif
+             i++;
+         }
          else {
             char msg[80];
             PrintCommandLineOptions(argv[0], myRank);
@@ -165,6 +176,52 @@ void ParseCommandLineOptions(int argc, char *argv[],
          }
       }
    }
+}
+
+/////////////////////////////////////////////////////////////////////
+
+void SetupCaliperConfig()
+{
+#ifdef USE_CALIPER
+   cali_config_preset("CALI_LOG_VERBOSITY", "0");
+   cali_config_preset("CALI_CALIPER_ATTRIBUTE_PROPERTIES", 
+                      "function=nested:process_scope"
+                      ",loop=nested:process_scope"
+                      ",iteration#lulesh.cycle=process_scope:asvalue");
+#endif
+}
+
+void SetupCaliperExperiments(const struct cmdLineOpts* opts)
+{
+    static const char* serial_profile_cfg[][2] = {
+        { "CALI_SERVICES_ENABLE", "aggregate,event,timestamp,report" },
+        { "CALI_AGGREGATE_KEY",   "annotation,function,loop"         }, 
+        { "CALI_EVENT_ENABLE_SNAPSHOT_INFO", "false" },
+        { "CALI_TIMER_SNAPSHOT_DURATION",    "true"  },
+        { "CALI_REPORT_CONFIG",
+          "select inclusive_sum(sum#time.duration),sum(sum#time.duration),percent_total(sum#time.duration) format tree" },
+        { NULL, NULL }
+    };
+    static const char* mpi_profile_cfg[][2] = {
+        { "CALI_SERVICES_ENABLE", "aggregate,event,mpi,mpireport,timestamp" },
+        { "CALI_AGGREGATE_KEY",   "annotation,function,loop,mpi.function" }, 
+        { "CALI_EVENT_ENABLE_SNAPSHOT_INFO", "false" },
+        { "CALI_TIMER_SNAPSHOT_DURATION",    "true"  },
+        { "CALI_MPI_WHITELIST", "MPI_Allreduce,MPI_Barrier,MPI_Bcast,MPI_Isend,MPI_Irecv,MPI_Wait,MPI_Waitall,MPI_Finalize" },
+        { "CALI_MPIREPORT_CONFIG",
+          "select statistics(sum#time.duration),percent_total(sum#time.duration) format tree" },
+        { NULL, NULL }
+    };
+
+#ifdef USE_CALIPER
+#ifdef USE_MPI
+    if (opts->profile)
+        cali_experiment_create_from_profile("profile",  0, mpi_profile_cfg);
+#else
+    if (opts->profile)
+        cali_experiment_create_from_profile("profile",  0, serial_profile_cfg);
+#endif
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////

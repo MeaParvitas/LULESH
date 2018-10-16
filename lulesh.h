@@ -580,6 +580,9 @@ struct cmdLineOpts {
    Int_t viz; // -v 
    Int_t cost; // -c
    Int_t balance; // -b
+   
+   // Caliper experiments
+   bool  profile; // --profile
 };
 
 
@@ -598,6 +601,8 @@ void VerifyAndWriteFinalOutput(Real_t elapsed_time,
                                Domain& locDom,
                                Int_t nx,
                                Int_t numRanks);
+void SetupCaliperConfig();
+void SetupCaliperExperiments(const struct cmdLineOpts* opts);
 
 // lulesh-viz
 void DumpToVisit(Domain& domain, int numFiles, int myRank, int numRanks);
