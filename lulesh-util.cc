@@ -214,7 +214,22 @@ void SetupCaliperExperiments(const struct cmdLineOpts* opts)
     };
 
 #ifdef USE_CALIPER
-#ifdef USE_MPI
+    const struct globals_entry_t {
+        const char* name;
+        int val;
+    } globals[] = {
+        { "iterations", opts->its     },
+        { "cost",       opts->cost    },
+        { "size",       opts->nx      },
+        { "regions",    opts->numReg  },
+        { "balance",    opts->balance },
+        { NULL, 0 }
+    };
+
+    for (const globals_entry_t* ge = globals; ge->name; ++ge)
+        cali::Annotation(ge->name, CALI_ATTR_GLOBAL).set(ge->val);
+
+#if USE_MPI
     if (opts->profile)
         cali_experiment_create_from_profile("profile",  0, mpi_profile_cfg);
 #else
