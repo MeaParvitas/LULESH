@@ -7,6 +7,9 @@
 #endif
 #if USE_CALIPER
 #include <caliper/cali.h>
+#if USE_MPI
+#include <caliper/cali-mpi.h>
+#endif
 #endif
 #include "lulesh.h"
 
@@ -183,10 +186,14 @@ void ParseCommandLineOptions(int argc, char *argv[],
 void SetupCaliperConfig()
 {
 #ifdef USE_CALIPER
+#if USE_MPI
+    cali_mpi_init();
+#endif
    cali_config_preset("CALI_LOG_VERBOSITY", "0");
    cali_config_preset("CALI_CALIPER_ATTRIBUTE_PROPERTIES", 
                       "function=nested:process_scope"
                       ",loop=nested:process_scope"
+                      ",mpi.function=nested:process_scope"
                       ",iteration#lulesh.cycle=process_scope:asvalue");
 #endif
 }
@@ -195,21 +202,19 @@ void SetupCaliperExperiments(const struct cmdLineOpts* opts)
 {
     static const char* serial_profile_cfg[][2] = {
         { "CALI_SERVICES_ENABLE", "aggregate,event,timestamp,report" },
-        { "CALI_AGGREGATE_KEY",   "annotation,function,loop"         }, 
         { "CALI_EVENT_ENABLE_SNAPSHOT_INFO", "false" },
         { "CALI_TIMER_SNAPSHOT_DURATION",    "true"  },
         { "CALI_REPORT_CONFIG",
-          "select inclusive_sum(sum#time.duration),sum(sum#time.duration),percent_total(sum#time.duration) format tree" },
+          "select inclusive_sum(sum#time.duration) as \"Inclusive time (usec)\",sum(sum#time.duration) as \"Exclusive time (usec)\", percent_total(sum#time.duration) as \"Time percent\" group by prop:nested format tree" },
         { NULL, NULL }
     };
     static const char* mpi_profile_cfg[][2] = {
         { "CALI_SERVICES_ENABLE", "aggregate,event,mpi,mpireport,timestamp" },
-        { "CALI_AGGREGATE_KEY",   "annotation,function,loop,mpi.function" }, 
         { "CALI_EVENT_ENABLE_SNAPSHOT_INFO", "false" },
         { "CALI_TIMER_SNAPSHOT_DURATION",    "true"  },
         { "CALI_MPI_WHITELIST", "MPI_Allreduce,MPI_Barrier,MPI_Bcast,MPI_Isend,MPI_Irecv,MPI_Wait,MPI_Waitall,MPI_Finalize" },
         { "CALI_MPIREPORT_CONFIG",
-          "select statistics(sum#time.duration),percent_total(sum#time.duration) format tree" },
+          "select min(sum#time.duration) as \"Min time/rank\", max(sum#time.duration) as \"Max time/rank\",percent_total(sum#time.duration) as \"Time percent\" group by prop:nested format tree" },
         { NULL, NULL }
     };
 
