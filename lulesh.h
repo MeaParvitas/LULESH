@@ -582,7 +582,8 @@ struct cmdLineOpts {
    Int_t balance; // -b
    
    // Caliper experiments
-   bool  profile; // --profile
+   bool  profile;  // --time-profile
+   bool  msgtrace; // --mpi-msg-trace
 };
 
 

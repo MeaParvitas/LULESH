@@ -22,7 +22,7 @@ int StrToInt(const char *token, int *retVal)
 
    if (token == NULL)
       return 0 ;
-   
+
    c = token ;
    *retVal = (int)strtol(c, &endptr, decimal_base) ;
    if((endptr != c) && ((*endptr == ' ') || (*endptr == '\0')))
@@ -55,7 +55,7 @@ static void ParseError(const char *message, int myRank)
 {
    if (myRank == 0) {
       printf("%s\n", message);
-#if USE_MPI      
+#if USE_MPI
       MPI_Abort(MPI_COMM_WORLD, -1);
 #else
       exit(-1);
@@ -147,7 +147,7 @@ void ParseCommandLineOptions(int argc, char *argv[],
          }
          /* -v */
          else if (strcmp(argv[i], "-v") == 0) {
-#if VIZ_MESH            
+#if VIZ_MESH
             opts->viz = 1;
 #else
             ParseError("Use of -v requires compiling with -DVIZ_MESH\n", myRank);
@@ -157,7 +157,7 @@ void ParseCommandLineOptions(int argc, char *argv[],
          /* -h */
          else if (strcmp(argv[i], "-h") == 0) {
             PrintCommandLineOptions(argv[0], myRank);
-#if USE_MPI            
+#if USE_MPI
             MPI_Abort(MPI_COMM_WORLD, 0);
 #else
             exit(0);
@@ -190,7 +190,7 @@ void SetupCaliperConfig()
     cali_mpi_init();
 #endif
    cali_config_preset("CALI_LOG_VERBOSITY", "0");
-   cali_config_preset("CALI_CALIPER_ATTRIBUTE_PROPERTIES", 
+   cali_config_preset("CALI_CALIPER_ATTRIBUTE_PROPERTIES",
                       "function=nested:process_scope"
                       ",loop=nested:process_scope"
                       ",mpi.function=nested:process_scope"
@@ -200,24 +200,6 @@ void SetupCaliperConfig()
 
 void SetupCaliperExperiments(const struct cmdLineOpts* opts)
 {
-    static const char* serial_profile_cfg[][2] = {
-        { "CALI_SERVICES_ENABLE", "aggregate,event,timestamp,report" },
-        { "CALI_EVENT_ENABLE_SNAPSHOT_INFO", "false" },
-        { "CALI_TIMER_SNAPSHOT_DURATION",    "true"  },
-        { "CALI_REPORT_CONFIG",
-          "select inclusive_sum(sum#time.duration) as \"Inclusive time (usec)\",sum(sum#time.duration) as \"Exclusive time (usec)\", percent_total(sum#time.duration) as \"Time percent\" group by prop:nested format tree" },
-        { NULL, NULL }
-    };
-    static const char* mpi_profile_cfg[][2] = {
-        { "CALI_SERVICES_ENABLE", "aggregate,event,mpi,mpireport,timestamp" },
-        { "CALI_EVENT_ENABLE_SNAPSHOT_INFO", "false" },
-        { "CALI_TIMER_SNAPSHOT_DURATION",    "true"  },
-        { "CALI_MPI_WHITELIST", "MPI_Allreduce,MPI_Barrier,MPI_Bcast,MPI_Isend,MPI_Irecv,MPI_Wait,MPI_Waitall,MPI_Finalize" },
-        { "CALI_MPIREPORT_CONFIG",
-          "select min(sum#time.duration) as \"Min time/rank\", max(sum#time.duration) as \"Max time/rank\",percent_total(sum#time.duration) as \"Time percent\" group by prop:nested format tree" },
-        { NULL, NULL }
-    };
-
 #ifdef USE_CALIPER
     const struct globals_entry_t {
         const char* name;
@@ -235,11 +217,29 @@ void SetupCaliperExperiments(const struct cmdLineOpts* opts)
         cali::Annotation(ge->name, CALI_ATTR_GLOBAL).set(ge->val);
 
 #if USE_MPI
-    if (opts->profile)
-        cali_experiment_create_from_profile("profile",  0, mpi_profile_cfg);
+    if (opts->profile) {
+        static const char* cfg_entries[][2] = {
+            { "CALI_CONFIG_PROFILE", "mpi-runtime-report" },
+            { NULL, NULL}
+        };
+
+        cali_configset_t cfg = cali_create_configset(cfg_entries);
+
+        cali_create_channel("profile", 0, cfg);
+        cali_delete_configset(cfg);
+    }
 #else
-    if (opts->profile)
-        cali_experiment_create_from_profile("profile",  0, serial_profile_cfg);
+    if (opts->profile) {
+        static const char* cfg_entries[][2] = {
+            { "CALI_CONFIG_PROFILE", "runtime-report" },
+            { NULL, NULL}
+        };
+
+        cali_configset_t cfg = cali_create_configset(cfg_entries);
+
+        cali_create_channel("profile",  0, cfg);
+        cali_delete_configset(cfg);
+    }
 #endif
 #endif
 }
@@ -253,7 +253,7 @@ void VerifyAndWriteFinalOutput(Real_t elapsed_time,
 {
    // GrindTime1 only takes a single domain into account, and is thus a good way to measure
    // processor speed indepdendent of MPI parallelism.
-   // GrindTime2 takes into account speedups from MPI parallelism 
+   // GrindTime2 takes into account speedups from MPI parallelism
    Real_t grindTime1 = ((elapsed_time*1e6)/locDom.cycle())/(nx*nx*nx);
    Real_t grindTime2 = ((elapsed_time*1e6)/locDom.cycle())/(nx*nx*nx*numRanks);
 
