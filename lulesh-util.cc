@@ -201,20 +201,11 @@ void SetupCaliperConfig()
 void SetupCaliperExperiments(const struct cmdLineOpts* opts)
 {
 #ifdef USE_CALIPER
-    const struct globals_entry_t {
-        const char* name;
-        int val;
-    } globals[] = {
-        { "iterations", opts->its     },
-        { "cost",       opts->cost    },
-        { "size",       opts->nx      },
-        { "regions",    opts->numReg  },
-        { "balance",    opts->balance },
-        { NULL, 0 }
-    };
-
-    for (const globals_entry_t* ge = globals; ge->name; ++ge)
-        cali::Annotation(ge->name, CALI_ATTR_GLOBAL).set(ge->val);
+    cali_set_global_int_byname( "iterations", opts->its     );
+    cali_set_global_int_byname( "cost",       opts->cost    );
+    cali_set_global_int_byname( "size",       opts->nx      );
+    cali_set_global_int_byname( "regions",    opts->numReg  );
+    cali_set_global_int_byname( "balance",    opts->balance );
 
 #if USE_MPI
     if (opts->profile) {
