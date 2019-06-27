@@ -6,6 +6,15 @@ option(WITH_MPI    "Build LULESH with MPI"          TRUE)
 option(WITH_OPENMP "Build LULESH with OpenMP"       TRUE)
 option(WITH_SILO   "Build LULESH with silo support" FALSE)
 
+find_package(caliper REQUIRED)
+find_package(adiak REQUIRED)
+
+include_directories(${caliper_INCLUDE_DIR} ${adiak_INCLUDE_DIRS})
+
+list(APPEND LULESH_EXTERNAL_LIBS caliper adiak)
+
+set(CMAKE_CXX_STANDARD 11)
+
 if (WITH_MPI)
   find_package(MPI REQUIRED)
   include_directories(${MPI_C_INCLUDE_PATH} ${MPI_CXX_INCLUDE_PATH})

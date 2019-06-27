@@ -7,7 +7,27 @@
 #if USE_MPI
 #include <mpi.h>
 #endif
+
+#include <adiak.hpp>
+
 #include "lulesh.h"
+
+void RecordGlobals(const cmdLineOpts& opts)
+{
+    adiak::user();
+    adiak::launchdate();
+    adiak::executablepath();
+    adiak::libraries();
+    adiak::cmdline();
+    adiak::clustername();
+    adiak::jobsize();
+
+    adiak::value("iterations", opts.its);
+    adiak::value("problem_size", opts.nx);
+    adiak::value("num_regions", opts.numReg);
+    adiak::value("region_cost", opts.cost);
+    adiak::value("region_balance", opts.balance);
+}
 
 /* Helper function for converting strings to ints, with error checking */
 template<typename IntT>
@@ -42,6 +62,7 @@ static void PrintCommandLineOptions(char *execname, int myRank)
       printf(" -c <cost>       : Extra cost of more expensive regions (def: 1)\n");
       printf(" -f <numfiles>   : Number of files to split viz dump into (def: (np+10)/9)\n");
       printf(" -p              : Print out progress\n");
+      printf(" -P <configstr>  : Caliper profiling configuration (e.g., \"runtime-report\")\n");
       printf(" -v              : Output viz file (requires compiling with -DVIZ_MESH\n");
       printf(" -h              : This message\n");
       printf("\n\n");
@@ -140,6 +161,13 @@ void ParseCommandLineOptions(int argc, char *argv[],
             if (!ok) {
                ParseError("Parse Error on option -c integer value required after argument\n", myRank);
             }
+            i+=2;
+         }
+         else if (strcmp(argv[i], "-P") == 0) {
+            if (i+1 >= argc) {
+               ParseError("Missing argument to -P\n", myRank);
+            }
+            opts->caliperConfig = argv[i+1];
             i+=2;
          }
          /* -v */

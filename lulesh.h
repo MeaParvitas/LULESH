@@ -18,6 +18,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <string>
 #include <vector>
 
 //**************************************************
@@ -605,6 +606,7 @@ struct cmdLineOpts {
    Int_t viz; // -v 
    Int_t cost; // -c
    Int_t balance; // -b
+   std::string caliperConfig; // -P
 };
 
 
@@ -617,6 +619,7 @@ Real_t CalcElemVolume( const Real_t x[8],
                        const Real_t z[8]);
 
 // lulesh-util
+void RecordGlobals(const cmdLineOpts& opts);
 void ParseCommandLineOptions(int argc, char *argv[],
                              Int_t myRank, struct cmdLineOpts *opts);
 void VerifyAndWriteFinalOutput(Real_t elapsed_time,
