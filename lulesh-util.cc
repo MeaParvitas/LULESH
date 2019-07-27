@@ -12,7 +12,7 @@
 
 #include "lulesh.h"
 
-void RecordGlobals(const cmdLineOpts& opts)
+void RecordGlobals(const cmdLineOpts& opts, int num_threads)
 {
     adiak::user();
     adiak::launchdate();
@@ -21,6 +21,8 @@ void RecordGlobals(const cmdLineOpts& opts)
     adiak::cmdline();
     adiak::clustername();
     adiak::jobsize();
+
+    adiak::value("threads", num_threads);
 
     adiak::value("iterations", opts.its);
     adiak::value("problem_size", opts.nx);
@@ -39,7 +41,7 @@ int StrToInt(const char *token, IntT *retVal)
 
    if (token == NULL)
       return 0 ;
-   
+
    c = token ;
    *retVal = strtol(c, &endptr, decimal_base) ;
    if((endptr != c) && ((*endptr == ' ') || (*endptr == '\0')))
@@ -73,7 +75,7 @@ static void ParseError(const char *message, int myRank)
 {
    if (myRank == 0) {
       printf("%s\n", message);
-#if USE_MPI      
+#if USE_MPI
       MPI_Abort(MPI_COMM_WORLD, -1);
 #else
       exit(-1);
@@ -172,7 +174,7 @@ void ParseCommandLineOptions(int argc, char *argv[],
          }
          /* -v */
          else if (strcmp(argv[i], "-v") == 0) {
-#if VIZ_MESH            
+#if VIZ_MESH
             opts->viz = 1;
 #else
             ParseError("Use of -v requires compiling with -DVIZ_MESH\n", myRank);
@@ -182,7 +184,7 @@ void ParseCommandLineOptions(int argc, char *argv[],
          /* -h */
          else if (strcmp(argv[i], "-h") == 0) {
             PrintCommandLineOptions(argv[0], myRank);
-#if USE_MPI            
+#if USE_MPI
             MPI_Abort(MPI_COMM_WORLD, 0);
 #else
             exit(0);
@@ -253,6 +255,9 @@ void VerifyAndWriteFinalOutput(Real_t elapsed_time,
    std::cout << "Grind time (us/z/c)  = "  << std::setw(10) << grindTime1 << " (per dom)  ("
              << std::setw(10) << elapsed_time << " overall)\n";
    std::cout << "FOM                  = " << std::setw(10) << 1000.0/grindTime2 << " (z/s)\n\n";
+
+   adiak::value("elapsed_time", elapsed_time);
+   adiak::value("figure_of_merit", 1000.0/grindTime2);
 
    return ;
 }
