@@ -2749,9 +2749,7 @@ int main(int argc, char *argv[])
    if (mgr.error())
       std::cerr << "Caliper config parse error: " << mgr.error_msg() << std::endl;
 
-   auto channels = mgr.get_all_channels();
-   for (auto &c : channels)
-      c->start();
+   mgr.start();
 
    RecordGlobals(opts, num_threads);
 
@@ -2855,9 +2853,7 @@ int main(int argc, char *argv[])
 
    CALI_MARK_FUNCTION_END;
 
-   for (auto &c : channels)
-      c->flush();
-
+   mgr.flush();
    adiak::fini();
 
 #if USE_MPI
