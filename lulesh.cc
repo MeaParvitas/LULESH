@@ -160,8 +160,10 @@ Additional BSD Notice
 #endif
 
 #include <caliper/cali.h>
-#include <caliper/cali-mpi.h>
 #include <caliper/cali-manager.h>
+#if USE_MPI
+#include <caliper/cali-mpi.h>
+#endif
 
 #include <adiak.hpp>
 
@@ -2692,15 +2694,14 @@ int main(int argc, char *argv[])
 
    int num_threads = 1;
 
+   cali_config_set("CALI_CALIPER_ATTRIBUTE_DEFAULT_SCOPE", "process");
+
 #if USE_MPI
    Domain_member fieldData ;
 
 #ifdef _OPENMP
    int thread_support;
    num_threads = omp_get_max_threads();
-
-   cali_config_preset("CALI_LOG_VERBOSITY", "0");
-   cali_config_set("CALI_CALIPER_ATTRIBUTE_DEFAULT_SCOPE", "process");
 
    MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &thread_support);
    if (thread_support==MPI_THREAD_SINGLE)
