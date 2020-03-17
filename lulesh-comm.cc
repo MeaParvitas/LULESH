@@ -3,6 +3,8 @@
 // If no MPI, then this whole file is stubbed out
 #if USE_MPI
 
+#include <caliper/cali.h>
+
 #include <mpi.h>
 #include <string.h>
 
@@ -61,6 +63,8 @@ void CommRecv(Domain& domain, Int_t msgType, Index_t xferFields,
 
    if (domain.numRanks() == 1)
       return ;
+   
+   CALI_CXX_MARK_FUNCTION;
 
    /* post recieve buffers for all incoming messages */
    int myRank ;
@@ -361,6 +365,8 @@ void CommSend(Domain& domain, Int_t msgType,
 
    if (domain.numRanks() == 1)
       return ;
+
+   CALI_CXX_MARK_FUNCTION;
 
    /* post recieve buffers for all incoming messages */
    int myRank ;
@@ -850,6 +856,8 @@ void CommSBN(Domain& domain, Int_t xferFields, Domain_member *fieldData) {
    if (domain.numRanks() == 1)
       return ;
 
+   CALI_CXX_MARK_FUNCTION;
+
    /* summation order should be from smallest value to largest */
    /* or we could try out kahan summation! */
 
@@ -1262,6 +1270,8 @@ void CommSyncPosVel(Domain& domain) {
 
    if (domain.numRanks() == 1)
       return ;
+
+   CALI_CXX_MARK_FUNCTION;
 
    int myRank ;
    bool doRecv = false ;
@@ -1685,6 +1695,8 @@ void CommMonoQ(Domain& domain)
 {
    if (domain.numRanks() == 1)
       return ;
+   
+   CALI_CXX_MARK_FUNCTION;
 
    int myRank ;
    Index_t xferFields = 3 ; /* delv_xi, delv_eta, delv_zeta */
