@@ -2,11 +2,6 @@
 # error "You should specify USE_MPI=0 or USE_MPI=1 on the compile line"
 #endif
 
-
-// OpenMP will be compiled in if this flag is set to 1 AND the compiler beging
-// used supports it (i.e. the _OPENMP symbol is defined)
-#define USE_OMP 1
-
 #if USE_MPI
 #include <mpi.h>
 
@@ -22,6 +17,8 @@
 #endif
 
 #include <math.h>
+#include <stdlib.h>
+#include <string>
 #include <vector>
 
 //**************************************************
@@ -36,9 +33,11 @@ typedef float        real4 ;
 typedef double       real8 ;
 typedef long double  real10 ;  // 10 bytes on x86
 
-typedef int    Index_t ; // array subscript and loop index
-typedef real8  Real_t ;  // floating point representation
-typedef int    Int_t ;   // integer representation
+typedef int32_t Int4_t ;
+typedef int64_t Int8_t ;
+typedef Int4_t  Index_t ; // array subscript and loop index
+typedef real8   Real_t ;  // floating point representation
+typedef Int4_t  Int_t ;   // integer representation
 
 enum { VolumeError = -1, QStopError = -2 } ;
 
@@ -101,6 +100,28 @@ inline real10 FABS(real10 arg) { return fabsl(arg) ; }
 #define CACHE_ALIGN_REAL(n) \
    (((n) + (CACHE_COHERENCE_PAD_REAL - 1)) & ~(CACHE_COHERENCE_PAD_REAL-1))
 
+/*********************************/
+/* Data structure implementation */
+/*********************************/
+
+/* might want to add access methods so that memory can be */
+/* better managed, as in luleshFT */
+
+template <typename T>
+T *Allocate(size_t size)
+{
+   return static_cast<T *>(malloc(sizeof(T)*size)) ;
+}
+
+template <typename T>
+void Release(T **ptr)
+{
+   if (*ptr != NULL) {
+      free(*ptr) ;
+      *ptr = NULL ;
+   }
+}
+
 //////////////////////////////////////////////////////
 // Primary data structure
 //////////////////////////////////////////////////////
@@ -132,6 +153,9 @@ class Domain {
    Domain(Int_t numRanks, Index_t colLoc,
           Index_t rowLoc, Index_t planeLoc,
           Index_t nx, Int_t tp, Int_t nr, Int_t balance, Int_t cost);
+
+   // Destructor
+   ~Domain();
 
    //
    // ALLOCATION
@@ -190,44 +214,46 @@ class Domain {
       m_ss.resize(numElem);
 
       m_elemMass.resize(numElem);
+
+      m_vnew.resize(numElem) ;
    }
 
    void AllocateGradients(Int_t numElem, Int_t allElem)
    {
       // Position gradients
-      m_delx_xi.resize(numElem) ;
-      m_delx_eta.resize(numElem) ;
-      m_delx_zeta.resize(numElem) ;
+      m_delx_xi   = Allocate<Real_t>(numElem) ;
+      m_delx_eta  = Allocate<Real_t>(numElem) ;
+      m_delx_zeta = Allocate<Real_t>(numElem) ;
 
       // Velocity gradients
-      m_delv_xi.resize(allElem) ;
-      m_delv_eta.resize(allElem);
-      m_delv_zeta.resize(allElem) ;
+      m_delv_xi   = Allocate<Real_t>(allElem) ;
+      m_delv_eta  = Allocate<Real_t>(allElem);
+      m_delv_zeta = Allocate<Real_t>(allElem) ;
    }
 
    void DeallocateGradients()
    {
-      m_delx_zeta.clear() ;
-      m_delx_eta.clear() ;
-      m_delx_xi.clear() ;
+      Release(&m_delx_zeta);
+      Release(&m_delx_eta) ;
+      Release(&m_delx_xi)  ;
 
-      m_delv_zeta.clear() ;
-      m_delv_eta.clear() ;
-      m_delv_xi.clear() ;
+      Release(&m_delv_zeta);
+      Release(&m_delv_eta) ;
+      Release(&m_delv_xi)  ;
    }
 
    void AllocateStrains(Int_t numElem)
    {
-      m_dxx.resize(numElem) ;
-      m_dyy.resize(numElem) ;
-      m_dzz.resize(numElem) ;
+      m_dxx = Allocate<Real_t>(numElem) ;
+      m_dyy = Allocate<Real_t>(numElem) ;
+      m_dzz = Allocate<Real_t>(numElem) ;
    }
 
    void DeallocateStrains()
    {
-      m_dzz.clear() ;
-      m_dyy.clear() ;
-      m_dxx.clear() ;
+      Release(&m_dzz) ;
+      Release(&m_dyy) ;
+      Release(&m_dxx) ;
    }
    
    //
@@ -293,6 +319,9 @@ class Domain {
    Real_t& dxx(Index_t idx)  { return m_dxx[idx] ; }
    Real_t& dyy(Index_t idx)  { return m_dyy[idx] ; }
    Real_t& dzz(Index_t idx)  { return m_dzz[idx] ; }
+
+   // New relative volume - temporary
+   Real_t& vnew(Index_t idx)  { return m_vnew[idx] ; }
 
    // Velocity gradient - temporary
    Real_t& delv_xi(Index_t idx)    { return m_delv_xi[idx] ; }
@@ -470,17 +499,17 @@ class Domain {
 
    std::vector<Int_t>    m_elemBC ;  /* symmetry/free-surface flags for each elem face */
 
-   std::vector<Real_t> m_dxx ;  /* principal strains -- temporary */
-   std::vector<Real_t> m_dyy ;
-   std::vector<Real_t> m_dzz ;
+   Real_t             *m_dxx ;  /* principal strains -- temporary */
+   Real_t             *m_dyy ;
+   Real_t             *m_dzz ;
 
-   std::vector<Real_t> m_delv_xi ;    /* velocity gradient -- temporary */
-   std::vector<Real_t> m_delv_eta ;
-   std::vector<Real_t> m_delv_zeta ;
+   Real_t             *m_delv_xi ;    /* velocity gradient -- temporary */
+   Real_t             *m_delv_eta ;
+   Real_t             *m_delv_zeta ;
 
-   std::vector<Real_t> m_delx_xi ;    /* coordinate gradient -- temporary */
-   std::vector<Real_t> m_delx_eta ;
-   std::vector<Real_t> m_delx_zeta ;
+   Real_t             *m_delx_xi ;    /* coordinate gradient -- temporary */
+   Real_t             *m_delx_eta ;
+   Real_t             *m_delx_zeta ;
    
    std::vector<Real_t> m_e ;   /* energy */
 
@@ -577,6 +606,7 @@ struct cmdLineOpts {
    Int_t viz; // -v 
    Int_t cost; // -c
    Int_t balance; // -b
+   std::string caliperConfig; // -P
 };
 
 
@@ -589,6 +619,7 @@ Real_t CalcElemVolume( const Real_t x[8],
                        const Real_t z[8]);
 
 // lulesh-util
+void RecordGlobals(const cmdLineOpts& opts, int num_threads);
 void ParseCommandLineOptions(int argc, char *argv[],
                              Int_t myRank, struct cmdLineOpts *opts);
 void VerifyAndWriteFinalOutput(Real_t elapsed_time,

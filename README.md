@@ -1,4 +1,12 @@
-This is the README for LULESH 2.0
+# Lulesh - Overhead evaluation experiments
+
+This is a modified version of Lulesh, augmented with Caliper performance profiling instrumentation and Adiak metadata collection annotations. See
+* Caliper: https://github.com/LLNL/Caliper
+* Adiak: https://github.com/LLNL/Adiak
+
+The included scripts overhead-eval-build.sh and overhead-eval-run.sh demonstrate how to build and run the experiments.
+
+# This is the README for LULESH 2.0
 
 More information including LULESH 1.0 can be found at https://codesign.llnl.gov/lulesh.php
 
@@ -10,7 +18,7 @@ Rob Neely <neely4@llnl.gov>
 
 Also please send any notable results to Ian Karlin <karlin1@llnl.gov> as we are still evaluating the performance of this code.
 
-*** Notable changes in LULESH 2.0 ***
+## Notable changes in LULESH 2.0
 
 Split functionality into different files
 lulesh.cc - where most (all?) of the timed functionality lies
