@@ -2717,8 +2717,6 @@ int main(int argc, char *argv[])
    MPI_Comm_size(MPI_COMM_WORLD, &numRanks) ;
    MPI_Comm_rank(MPI_COMM_WORLD, &myRank) ;
 
-   cali_mpi_init();
-
    MPI_Comm adiak_comm;
    MPI_Comm_dup(MPI_COMM_WORLD, &adiak_comm);
    adiak_comm_p = &adiak_comm;
