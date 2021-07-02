@@ -44,7 +44,7 @@ if (WITH_SILO)
   if (SILO_FOUND)
     add_definitions("-DVIZ_MESH")
     include_directories(${SILO_INCLUDE_DIR})
-    #   Note: silo needs to be built as a dynamic lib, otherwise 
+    #   Note: silo needs to be built as a dynamic lib, otherwise
     # there are additional dependencies (hdf5) which we don't know.
     # This would be fixed by silo providing a CMake package.
     list(APPEND LULESH_EXTERNAL_LIBS ${SILO_LIBRARY})
@@ -62,3 +62,5 @@ set(LULESH_EXEC lulesh2.0)
 
 add_executable(${LULESH_EXEC} ${LULESH_SOURCES})
 target_link_libraries(${LULESH_EXEC} ${LULESH_EXTERNAL_LIBS})
+
+install(TARGETS lulesh2.0 DESTINATION ${CMAKE_INSTALL_BINDIR})
