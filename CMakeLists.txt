@@ -11,13 +11,13 @@ find_package(adiak REQUIRED)
 
 include_directories(${caliper_INCLUDE_DIR} ${adiak_INCLUDE_DIRS})
 
-list(APPEND LULESH_EXTERNAL_LIBS caliper adiak)
+list(APPEND LULESH_EXTERNAL_LIBS caliper ${adiak_LIBRARIES})
 
 set(CMAKE_CXX_STANDARD 11)
 
 if (WITH_MPI)
   find_package(MPI REQUIRED)
-  include_directories(${MPI_C_INCLUDE_PATH} ${MPI_CXX_INCLUDE_PATH})
+  include_directories(${MPI_C_INCLUDE_DIRS} ${MPI_CXX_INCLUDE_DIRS})
   add_definitions("-DUSE_MPI=1")
   list(APPEND LULESH_EXTERNAL_LIBS ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES})
 else()
