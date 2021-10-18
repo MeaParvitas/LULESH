@@ -51,11 +51,15 @@ if (WITH_SILO)
   endif()
 endif()
 
+execute_process(COMMAND whoami OUTPUT_VARIABLE LULESH_BUILT_BY OUTPUT_STRIP_TRAILING_WHITESPACE)
+configure_file(lulesh-build-metadata.cc.in ${CMAKE_CURRENT_BINARY_DIR}/lulesh-build-metadata.cc)
+
 set(LULESH_SOURCES
   lulesh-comm.cc
   lulesh-init.cc
   lulesh-util.cc
   lulesh-viz.cc
+  ${CMAKE_CURRENT_BINARY_DIR}/lulesh-build-metadata.cc
   lulesh.cc)
 
 set(LULESH_EXEC lulesh2.0)
