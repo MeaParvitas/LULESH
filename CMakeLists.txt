@@ -14,6 +14,7 @@ include_directories(${caliper_INCLUDE_DIR} ${adiak_INCLUDE_DIRS})
 list(APPEND LULESH_EXTERNAL_LIBS caliper ${adiak_LIBRARIES})
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 if (WITH_MPI)
   find_package(MPI REQUIRED)
