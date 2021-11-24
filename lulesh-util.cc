@@ -20,7 +20,6 @@ void RecordGlobals(const cmdLineOpts& opts, int num_threads)
     adiak::user();
     adiak::launchdate();
     adiak::executablepath();
-    adiak::libraries();
     adiak::cmdline();
     adiak::clustername();
     adiak::jobsize();
