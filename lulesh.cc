@@ -2852,6 +2852,8 @@ int main(int argc, char *argv[])
 
    CALI_MARK_FUNCTION_END;
 
+   TimestampSync();
+
    mgr.flush();
    adiak::fini();
 
