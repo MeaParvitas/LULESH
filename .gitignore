@@ -1,1 +1,5 @@
 build-*
+build/
+output.out
+error.er
+
