@@ -2,4 +2,5 @@ build-*
 build/
 output.out
 error.er
-
+submit_jobs.sh
+job_*
