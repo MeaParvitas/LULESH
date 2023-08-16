@@ -11,4 +11,4 @@
 
 ml gcc
 
-srun ./build/lulesh2.0 -s 30
+srun ./build/lulesh2.0 -s 30 -P spot

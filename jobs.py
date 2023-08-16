@@ -25,7 +25,6 @@ def main():
 			file = open("job_p"+str(p)+".sh","w")
 			text = """#!/bin/bash
          
-#!/bin/bash
 #SBATCH --time=00:10:00
 #SBATCH --output=output.p"""+str(p)+""".r%a.out
 #SBATCH --error=error.p"""+str(p)+""".r%a.out
@@ -37,7 +36,7 @@ def main():
 
 ml gcc
 
-srun ./build/lulesh2.0 -s """+str(size)+"""
+srun ./build/lulesh2.0 -s """+str(size)+""" -P spot
 """
 			file.write(text)
 			file.close()
@@ -58,7 +57,6 @@ srun ./build/lulesh2.0 -s """+str(size)+"""
 			file = open("job_p"+str(p)+".sh","w")
 			text = """#!/bin/bash
          
-#!/bin/bash
 #SBATCH --time=00:10:00
 #SBATCH --output=output.p"""+str(p)+""".r%a.out
 #SBATCH --error=error.p"""+str(p)+""".r%a.out
@@ -70,7 +68,7 @@ srun ./build/lulesh2.0 -s """+str(size)+"""
 
 ml gcc
 
-srun ./build/lulesh2.0 -s """+str(size)+"""
+srun ./build/lulesh2.0 -s """+str(size)+""" -P spot
 """
 			file.write(text)
 			file.close()
