@@ -5,7 +5,7 @@ def main():
 	parser.add_argument('--weak', dest='weak', action='store_true', default=True, help='use weak scaling')
 	parser.add_argument('--strong', dest='strong', action='store_true', default=False, help='use strong scaling')
 	parser.add_argument('-p', nargs="+", dest='mpi_ranks', type=int, action='store', default=[8,27,64,125,216,343], help='the number of MPI ranks used for job creation')
-	parser.add_argument('-s', dest='size', type=int, action='store', default=30, help='the problem sixe, length of cube mesh along side')
+	parser.add_argument('-s', nargs="+", dest='size', type=int, action='store', default=[30], help='the problem size, length of cube mesh along side')
  
 	# get the command line arguments
 	args = parser.parse_args()
@@ -21,13 +21,15 @@ def main():
 	if weak:
   
 		for p in mpi_ranks:
+      
+			for s in size:
 			
-			file = open("job_p"+str(p)+".sh","w")
-			text = """#!/bin/bash
+				file = open("job_p"+str(p)+"_s"+str(s)+".sh","w")
+				text = """#!/bin/bash
          
 #SBATCH --time=00:10:00
-#SBATCH --output=output.p"""+str(p)+""".r%a.out
-#SBATCH --error=error.p"""+str(p)+""".r%a.out
+#SBATCH --output=output.p"""+str(p)+""".s"""+str(s)+""".r%a.out
+#SBATCH --error=error.p"""+str(p)+""".s"""+str(s)+""".r%a.out
 #SBATCH --mail-type=END
 #SBATCH --mail-user=ritter5@llnl.gov
 #SBATCH --exclusive
@@ -36,30 +38,32 @@ def main():
 
 ml gcc
 
-srun ./build/lulesh2.0 -s """+str(size)+""" -P spot
+srun ./build/lulesh2.0 -s """+str(s)+""" -P spot
 """
-			file.write(text)
-			file.close()
+				file.write(text)
+				file.close()
 	
 	# use strong scaling
 	else:
 		
-		# get the base problem size of the smallest number of MPI ranks
-		base_size = size
-		# calculate the total number of elements for this configuration
-		total_elements = calculate_total_elements(base_size, min(mpi_ranks))
-		
 		for p in mpi_ranks:
+      
+			for s in size:
+       
+				# get the base problem size of the smallest number of MPI ranks
+				base_size = s
+				# calculate the total number of elements for this configuration
+				total_elements = calculate_total_elements(base_size, min(mpi_ranks))
 			
-			# calculate the size so that we use strong scaling
-			size = calculate_size(p, total_elements)
+				# calculate the size so that we use strong scaling
+				adjusted_size = calculate_size(p, total_elements)
 
-			file = open("job_p"+str(p)+".sh","w")
-			text = """#!/bin/bash
+				file = open("job_p"+str(p)+"_s"+str(s)+".sh","w")
+				text = """#!/bin/bash
          
 #SBATCH --time=00:10:00
-#SBATCH --output=output.p"""+str(p)+""".r%a.out
-#SBATCH --error=error.p"""+str(p)+""".r%a.out
+#SBATCH --output=output.p"""+str(p)+""".s"""+str(s)+""".r%a.out
+#SBATCH --error=error.p"""+str(p)+""".s"""+str(s)+""".r%a.out
 #SBATCH --mail-type=END
 #SBATCH --mail-user=ritter5@llnl.gov
 #SBATCH --exclusive
@@ -68,10 +72,10 @@ srun ./build/lulesh2.0 -s """+str(size)+""" -P spot
 
 ml gcc
 
-srun ./build/lulesh2.0 -s """+str(size)+""" -P spot
+srun ./build/lulesh2.0 -s """+str(adjusted_size)+""" -P spot
 """
-			file.write(text)
-			file.close()
+				file.write(text)
+				file.close()
 
 def calculate_total_elements(s, p):
 	total_elements = p * (s**3)
