@@ -4,7 +4,7 @@ def main():
 	parser = argparse.ArgumentParser(description='LULESH job script generator.')
 	parser.add_argument('--weak', dest='weak', action='store_true', default=True, help='use weak scaling')
 	parser.add_argument('--strong', dest='strong', action='store_true', default=False, help='use strong scaling')
-	parser.add_argument('-p', nargs="+", dest='mpi_ranks', type=int, action='store', default=[8,27,64,125,216], help='the number of MPI ranks used for job creation')
+	parser.add_argument('-p', nargs="+", dest='mpi_ranks', type=int, action='store', default=[8,27,64,125,216,343], help='the number of MPI ranks used for job creation')
 	parser.add_argument('-s', dest='size', type=int, action='store', default=30, help='the problem sixe, length of cube mesh along side')
  
 	# get the command line arguments

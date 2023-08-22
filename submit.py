@@ -2,8 +2,8 @@ import argparse
 
 def main():
     
-    parser = argparse.ArgumentParser(description='LULESH job script generator.')
-    parser.add_argument('-p', nargs="+", dest='mpi_ranks', type=int, action='store', default=[8,27,64,125,216], help='the number of MPI ranks used for job creation')
+    parser = argparse.ArgumentParser(description='LULESH job submission script generator.')
+    parser.add_argument('-p', nargs="+", dest='mpi_ranks', type=int, action='store', default=[8,27,64,125,216,343], help='the number of MPI ranks used for job creation')
 	#parser.add_argument('-s', dest='size', type=int, action='store', default=30, help='the problem sixe, length of cube mesh along side')
     parser.add_argument('-r', dest='repetitions', type=int, action='store', default=1, help='set the number of repetitions to run per application configuration')
  
