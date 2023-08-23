@@ -38,7 +38,7 @@ def main():
 
 ml gcc
 
-srun ./build/lulesh2.0 -s """+str(s)+""" -P spot
+srun ./build/lulesh2.0 -s """+str(s)+""" -P spot,profile.mpi
 """
 				file.write(text)
 				file.close()
@@ -72,7 +72,7 @@ srun ./build/lulesh2.0 -s """+str(s)+""" -P spot
 
 ml gcc
 
-srun ./build/lulesh2.0 -s """+str(adjusted_size)+""" -P spot
+srun ./build/lulesh2.0 -s """+str(adjusted_size)+""" -P spot,profile.mpi
 """
 				file.write(text)
 				file.close()
