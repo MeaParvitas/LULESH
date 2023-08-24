@@ -27,9 +27,9 @@ def main():
 				file = open("job_p"+str(p)+"_s"+str(s)+".sh","w")
 				text = """#!/bin/bash
          
-#SBATCH --time=00:10:00
+#SBATCH --time=02:00:00
 #SBATCH --output=output.p"""+str(p)+""".s"""+str(s)+""".r%a.out
-#SBATCH --error=error.p"""+str(p)+""".s"""+str(s)+""".r%a.out
+#SBATCH --error=error.p"""+str(p)+""".s"""+str(s)+""".r%a.er
 #SBATCH --mail-type=END
 #SBATCH --mail-user=ritter5@llnl.gov
 #SBATCH --exclusive
@@ -61,9 +61,9 @@ srun ./build/lulesh2.0 -s """+str(s)+""" -P spot,profile.mpi
 				file = open("job_p"+str(p)+"_s"+str(s)+".sh","w")
 				text = """#!/bin/bash
          
-#SBATCH --time=00:10:00
+#SBATCH --time=02:00:00
 #SBATCH --output=output.p"""+str(p)+""".s"""+str(s)+""".r%a.out
-#SBATCH --error=error.p"""+str(p)+""".s"""+str(s)+""".r%a.out
+#SBATCH --error=error.p"""+str(p)+""".s"""+str(s)+""".r%a.er
 #SBATCH --mail-type=END
 #SBATCH --mail-user=ritter5@llnl.gov
 #SBATCH --exclusive
