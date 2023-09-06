@@ -11,7 +11,7 @@ def main():
     parser.add_argument('-p', nargs="+", dest='mpi_ranks', type=int, action='store', default=[
                         8, 27, 64, 125, 216, 343], help='the number of MPI ranks used for job creation')
     parser.add_argument('-s', nargs="+", dest='size', type=int, action='store',
-                        default=[30], help='the problem size, length of cube mesh along side')
+                        default=[10, 20, 30, 40, 50], help='the problem size, length of cube mesh along side')
 
     # get the command line arguments
     args = parser.parse_args()
